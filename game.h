@@ -33,22 +33,22 @@ public:
     size_t number_of_players() const;
     virtual int change(bool) const = 0;
     virtual std::ostream& print(std::ostream&) const;
+    friend std::ostream& operator<<(std::ostream&, const Game&);
     std::shared_ptr<Player> play(size_t);
-
 };
 
 class RGame: public Game {
 public:
     RGame(std::string, std::shared_ptr<Player>);
     int change(bool x) const;
-    std::ostream& print(std::ostream&);
+    std::ostream& print(std::ostream&) const;
 };
 
 class UGame: public Game {
 public:
     UGame(std::string, std::shared_ptr<Player>);
     int change(bool x) const;
-    std::ostream& print(std::ostream&);
+    std::ostream& print(std::ostream&) const;
 };
 
 

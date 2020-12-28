@@ -107,12 +107,17 @@ std::ostream& Game::print(std::ostream& o) const {
     return o;
 }
 
+std::ostream& operator<<(std::ostream& o, const Game& g) {
+    g.print(o);
+    return o;
+}
+
 UGame :: UGame(std::string s, std::shared_ptr<Player> p): Game(s,p) {}
 int UGame :: change(bool x) const {
     return 0;
 }
 
-std::ostream& UGame :: print(std::ostream& o) {
+std::ostream& UGame :: print(std::ostream& o) const {
    o << "Unranked Game: ";
    o << this;
    return o;
@@ -125,7 +130,7 @@ int RGame :: change(bool x) const {
     return returnMmr;
 }
 
-std::ostream& RGame :: print(std::ostream& o) {
+std::ostream& RGame :: print(std::ostream& o) const {
     o << "Ranked Game: ";
     o << this;
     return o;
