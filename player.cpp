@@ -48,15 +48,13 @@ bool Player :: host_game(std::string s, Mode m)
                 return true;
         }
         return false;
-
-        return true;
     }
     return false;
 }
 
 bool Player :: join_game(std::shared_ptr<Game> game) {
    if(game->add_player(gamekey(), shared_from_this())) {
-      const auto [it, success] = games.insert({game->get_name(), game});
+      const auto [it, success] = games.insert_or_assign(game->get_name(), game);
       if(!success && (*it).second.expired()) {
          games[game->get_name()] = game;
          return true;
@@ -98,15 +96,18 @@ bool Player :: close_game() {
 }
 std::ostream& Player :: print(std::ostream& o) const {
     o << '[';
-    o << name << ", ";
-    o << "hosts: " << hosted_game->get_name() << ", ";
+    o << get_name() << ", ";
+    o << get_mmr() << ", ";
+    if (hosted_game)
+        o << "hosts: " << hosted_game->get_name() << ", ";
     o << "games: " << "{";
     bool isFirst { true };
     for(const auto& g : games) {
-        if (isFirst) {
-            isFirst = false;
+        if (g.second.expired())
+            continue;
+        if (!isFirst)
             o << ", ";
-        }
+        isFirst = false;
         o << g.first;
     }
     o << "}]";

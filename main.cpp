@@ -6,8 +6,9 @@
 #include "game.h"
 #include "player.h"
 #include "gamekey.h"
+#include "Tester.h"
 
 int main() {
-    // Test Program for Game Platform
+    Tester tester;
     return 0;
 }

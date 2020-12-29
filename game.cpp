@@ -31,8 +31,9 @@ bool Game::remove_player(const gamekey& gk, std::shared_ptr<Player> p) {
 bool Game::add_player(const gamekey& gk, std::shared_ptr<Player> p) {
     // Still stuff TODO
     auto it { players.find(p->get_name()) };
-    if(it != players.end())
+    if(it != players.end()) {
         return false;
+    }
     else {
         auto newPair { std::make_pair(p->get_name(), p) };
         if(is_allowed(p->get_mmr())) {
@@ -48,12 +49,11 @@ std::shared_ptr<Player> Game::best_player() const {
     if (players.size() == 0)
         throw std::runtime_error("No players!");
     else {
-        int maxScore { 0 };
-        for(const auto& player : players) {
-            int playerScore { player.second->get_mmr() };
-            if(playerScore > maxScore)
-                bestPlayer = player.second;
-        }
+        auto a { std::max_element(players.begin(), players.end(),
+                                  [](const auto& g1, const auto& g2){
+            return g1.second->get_mmr() < g2.second->get_mmr();
+        })};
+        bestPlayer = a->second;
     }
     return bestPlayer;
 }
@@ -81,6 +81,7 @@ std::shared_ptr<Player> Game::play(size_t i) {
         } else {
             p.second->change_mmr(change(true));
         }
+        ++index;
     }
     return winner;
 }
@@ -92,18 +93,20 @@ std::ostream& Game::print(std::ostream& o) const {
     o << '[';
     o << get_name() << ", ";
     o << host->get_name() << ", ";
-    o << host->get_mmr() << ", ";
-    o << "player: ";
-    for(const auto& player : players) {
-        if(!is_first) {
-            is_first = false;
+    o << host->get_mmr();
+    o << ", player: {";
+    for (const auto &player : players) {
+        if (!is_first) {
             o << ", ";
         }
+        is_first = false;
         o << '[' << player.second->get_name();
         o << ", " << player.second->get_mmr();
         o << ']';
     }
+    o << '}';
     o << ']';
+    o << '\n';
     return o;
 }
 
@@ -119,19 +122,21 @@ int UGame :: change(bool x) const {
 
 std::ostream& UGame :: print(std::ostream& o) const {
    o << "Unranked Game: ";
-   o << this;
+   Game::print(o);
    return o;
 }
 
 RGame :: RGame(std::string s, std::shared_ptr<Player> p): Game(s,p) {}
 int RGame :: change(bool x) const {
     int returnMmr { 0 };
-    x ? returnMmr = 5 : returnMmr = -5;
-    return returnMmr;
+    if (x)
+        return 5;
+    else
+        return -5;
 }
 
 std::ostream& RGame :: print(std::ostream& o) const {
     o << "Ranked Game: ";
-    o << this;
+    Game::print(o);
     return o;
 }
